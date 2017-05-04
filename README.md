@@ -11,6 +11,31 @@
 
 ## 接口说明
 
-### checkForUpdate
-检查jsbundle是否有更新接口
-
+### /checkForUpdate 检查jsbundle是否有更新接口
+* 接口请求示例
+```
+{
+    businessList:[
+        {
+            id:"AAF047B7-E816-2AE0-949A-D5FB4CE40245"
+            hashcode:"01824139386045ca6739dd52b3bfb74a76b9b99fefb336f4e1a147a182cad6ba"
+        }
+    ]
+}
+```
+* 接口返回示例
+```
+{
+    success: 1,
+    msg: "成功"
+    data: [{
+            id: "AAF047B7-E816-2AE0-949A-D5FB4CE40245", // 验证通过且有升级包的情况
+            verifyHashCode: "01824139386045ca6739dd52b3bfb74a76b9b99fefb336f4e1a147a182cad6ba",
+            latestPatch: {
+                hashCode: "c1bbdc02200b5e5a72cf97bbdc3339165e71182c61f",
+                downloadUrl: "http://download.marcusma.com/rn/marcusma.patch",
+            }
+        }
+    ]
+}
+```
