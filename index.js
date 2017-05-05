@@ -59,10 +59,10 @@ app.post('/checkForUpdate', function (req, res) {
     // 处理传入的参数
     if (list instanceof Array) {
         list.forEach(function (tmp) {
-            if (dataManager.getBusinessInfoById(tmp.businessId)) { // 存在改businessId
-                let businessInfo = dataManager.getBusinessInfoById(tmp.businessId);
+            if (dataManager.getBusinessInfoById(tmp.id)) {
+                let businessInfo = dataManager.getBusinessInfoById(tmp.id);
                 let tempData = {
-                    businessId: tmp.businessId,
+                    id: tmp.id,
                     verifyHashCode: ""
                 };
                 if (businessInfo && businessInfo.existVersion(tmp.localPackageHashCode)) {
@@ -77,7 +77,7 @@ app.post('/checkForUpdate', function (req, res) {
                 if (latestPatchInfo.hashCode == tmp.localPackageHashCode) {
                     // 无新版本
                 } else {
-                    tempData.latestPackage = {
+                    tempData.latestPatch = {
                         hashCode: latestPatchInfo.hashCode,
                         downloadUrl: latestPatchInfo.getDownloadUrl()
                     };
@@ -101,11 +101,11 @@ app.post('/checkForUpdate', function (req, res) {
         }
         if (!isExist) {
             let tempData = {
-                businessId: tmp.id,
+                id: tmp.id,
                 verifyHashCode: ""
             };
             let latestPatchInfo = tmp.getLatestPatchInfo();
-            tempData.latestPackage = {
+            tempData.latestPatch = {
                 hashCode: latestPatchInfo.hashCode,
                 downloadUrl: latestPatchInfo.getDownloadUrl()
             };
