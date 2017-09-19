@@ -1,4 +1,13 @@
-"use strict";
+/*!
+ * Main
+ * Copyright(c) 2009-2017 Marcus Ma
+ * MIT Licensed
+ */
+'use strict';
+
+/**
+ * Module dependencies.
+ */
 const express = require('express');
 const exec = require('child_process').exec;
 const bodyParser = require('body-parser');
@@ -10,6 +19,11 @@ const EventEmitter = require('events');
 class MyEmitter extends EventEmitter {}
 const myEmitter = new MyEmitter();
 
+/**
+ * Custom module dependencies.
+ */
+const Log = require('./src/utils/Log');
+const TAG = "RN_CODE_PUSH_SERVER";
 /** event constants */
 const EVENT_START_BSDIFF_FILES = "event_start_bsdiff_files";
 const EVENT_SINGLE_FILE_BSDIFF_SUCCESS = "event_single_file_bsdiff_success";
@@ -43,15 +57,15 @@ app.use(bodyParser.urlencoded({
 }));
 
 app.get('/testGet', function (req, res) {
-    Log(req.query);
-    Log("call testGet");
+    Log.i(TAG,req.query);
+    Log.i(TAG,"call testGet");
     res.send("testGet success");
 });
 
 app.post('/checkForUpdate', function (req, res) {
-    Log("** checkForUpdate ***");
-    Log("request body:");
-    Log(JSON.stringify(req.body));
+    Log.i(TAG,"** checkForUpdate ***");
+    Log.i(TAG,"request body:");
+    Log.i(TAG,JSON.stringify(req.body));
     var reqBody = req.body;
     var list = [];
     list = reqBody.localBusinessList;
@@ -66,10 +80,10 @@ app.post('/checkForUpdate', function (req, res) {
                     verifyHashCode: ""
                 };
                 if (businessInfo && businessInfo.existVersion(tmp.localPackageHashCode)) {
-                    Log("exitVersion : " + tmp.localPackageHashCode);
+                    Log.i(TAG,"exitVersion : " + tmp.localPackageHashCode);
                     tempData.verifyHashCode = tmp.localPackageHashCode;
                 } else {
-                    Log("No Such Version " + tmp.localPackageHashCode);
+                    Log.i(TAG,"No Such Version " + tmp.localPackageHashCode);
                     tempData.verifyHashCode = "";
                 }
                 // 判断是否有新版本
@@ -120,17 +134,17 @@ app.post('/checkForUpdate', function (req, res) {
 
 app.listen(ServicePort, () => {
     LogProjectInfo();
-    Log('Server Listening at port :' + ServicePort);
+    Log.i(TAG,'Server Listening at port :' + ServicePort);
     
-    Log(".... Data Initilization ....");
+    Log.i(TAG,".... Data Initilization ....");
     var localBusiness = new BusinessInfo("AAF047B7-E816-2AE0-949A-D5FB4CE40245", "myBusiness", "business");
     dataManager.add(localBusiness);
 
-    Log(">>> clear ./dist folder");
+    Log.i(TAG,">>> clear ./dist folder");
     var clearDistCmd = "rm -rf " + DIST_PATH;
     exec(clearDistCmd, (error, stdout, stderr) => {
         if (error) {
-            Log(`exec error: ${error}`);
+            Log.i(TAG,`exec error: ${error}`);
             return;
         }
         fs.mkdir(DIST_PATH);
@@ -140,7 +154,7 @@ app.listen(ServicePort, () => {
 
 /** bsDiff */
 myEmitter.on(EVENT_START_BSDIFF_FILES, function () {
-    Log(">>> start bsdiff patch files");
+    Log.i(TAG,">>> start bsdiff patch files");
     bsdiffFilesProc(
         function () {
             myEmitter.emit(EVENT_SINGLE_FILE_BSDIFF_SUCCESS);
@@ -152,20 +166,20 @@ myEmitter.on(EVENT_START_BSDIFF_FILES, function () {
 });
 
 myEmitter.on(EVENT_SINGLE_FILE_BSDIFF_FAILED, function () {
-    Log("error happened in bsdiff progress");
+    Log.i(TAG,"error happened in bsdiff progress");
 });
 
 myEmitter.on(EVENT_SINGLE_FILE_BSDIFF_SUCCESS, function () {
     patchSum = patchSum - 1;
     if (patchSum <= 0) {
-        Log("patch progress complete");
+        Log.i(TAG,"patch progress complete");
         myEmitter.emit(EVENT_START_COMPUTE_HASHCODE);
     }
 });
 
 /** HashCode */
 myEmitter.on(EVENT_START_COMPUTE_HASHCODE, function () {
-    Log(">>> start compute patch hashcode (sha-256)");
+    Log.i(TAG,">>> start compute patch hashcode (sha-256)");
     var successCallback = function (filePatch, hashcode) {
         let array = filePatch.split('/');
         let fileName = array[array.length - 1];
@@ -173,20 +187,20 @@ myEmitter.on(EVENT_START_COMPUTE_HASHCODE, function () {
         let busTag = infos[0];
         let version = infos[2];
         let business = dataManager.getBusinessInfoByTag(busTag);
-        Log("businessInfo:" + JSON.stringify(business));
+        Log.i(TAG,"businessInfo:" + JSON.stringify(business));
         setTimeout(function () {
             business.addNewVersion(version, hashcode, filePatch);
-            Log("" + JSON.stringify(dataManager));
+            Log.i(TAG,"" + JSON.stringify(dataManager));
         }, 0);
     };
     var errorCallback = function () {
-        Log(`>>>> error in compute hashcode `);
+        Log.i(TAG,`>>>> error in compute hashcode `);
     };
     var dirs = fs.readdirSync(DIST_PATH);
     dirs.forEach(function (tmpDir) {
         var distBuinessDir = DIST_PATH + "/" + tmpDir;
         if (fs.statSync(distBuinessDir).isDirectory()) {
-            Log(">>>> Deal Dir: " + distBuinessDir);
+            Log.i(TAG,">>>> Deal Dir: " + distBuinessDir);
             var files = fs.readdirSync(distBuinessDir);
             files.forEach(function (patchName) {
                 if (patchName == '.DS_Store' || patchName.substr(patchName.length - 6, 6) != '.patch') {
@@ -206,7 +220,7 @@ myEmitter.on(EVENT_START_COMPUTE_HASHCODE, function () {
 
 /* Main Progress */
 function computeFilesHashProc(_filePath, _successCallback, _errorCallback) {
-    Log(">>>> Compute File: " + _filePath);
+    Log.i(TAG,">>>> Compute File: " + _filePath);
     let rs = fs.createReadStream(_filePath);
     let hash = crypto.createHash('sha256');
     rs.on('data', hash.update.bind(hash));
@@ -227,7 +241,7 @@ function bsdiffFilesProc(_successCallback, _errorCallback) {
         var distBuinessDir = DIST_PATH + "/" + tmpDir;
         var originalBuinessDir = ORIGINSL_SOURCE_PATH + "/" + tmpDir;
         if (fs.statSync(originalBuinessDir).isDirectory()) {
-            Log(">>>> Diff With: " + originalBuinessDir);
+            Log.i(TAG,">>>> Diff With: " + originalBuinessDir);
             fs.mkdirSync(distBuinessDir); // make /dist/xxxx dir
             var files = fs.readdirSync(originalBuinessDir);
 
@@ -240,17 +254,17 @@ function bsdiffFilesProc(_successCallback, _errorCallback) {
                         originalBuinessDir + "/" + completeBundleFile + " " +
                         distBuinessDir + "/" + completeBundleFile + ".patch";
                     var execCmd = BSDIFF_CMD + " " + option;
-                    Log(">>>> " + execCmd);
+                    Log.i(TAG,">>>> " + execCmd);
                     patchSum++;
                     exec(execCmd, (error, stdout, stderr) => {
                         if (error) {
-                            Log(`exec error: ${error}`);
+                            Log.i(TAG,`exec error: ${error}`);
                             if (typeof _errorCallback === "function") {
                                 _errorCallback();
                             }
                             return;
                         }
-                        Log(">>>> bsdiff success");
+                        Log.i(TAG,">>>> bsdiff success");
                         if (typeof _successCallback === "function") {
                             _successCallback();
                         }
@@ -277,7 +291,7 @@ BusinessManager.prototype.add = function (business) {
             }
         });
         if (!isExist) {
-            Log(">>>> add new Business Id : " + business.id);
+            Log.i(TAG,">>>> add new Business Id : " + business.id);
             this.businessMap.push(business);
         }
     }
@@ -287,7 +301,7 @@ BusinessManager.prototype.getBusinessInfoById = function (businessId) {
     let ret = null;
     if (this.businessMap instanceof Array) {
         this.businessMap.forEach(function (tmp) {
-            Log("local id" + tmp.id + " search id " + businessId);
+            Log.i(TAG,"local id" + tmp.id + " search id " + businessId);
             if (tmp.id === businessId) {
                 ret = tmp;
             }
@@ -364,30 +378,21 @@ BusinessInfo.prototype.addNewVersion = function (patchVersion, patchHashCode, pa
         }
     });
     if (!isExit) {
-        Log(">>>> add new business version : " + patchFilePath);
+        Log.i(TAG,">>>> add new business version : " + patchFilePath);
         let newPatchVersionInfo = new PatchVersionInfo(this.businessId, patchVersion, patchHashCode, patchFilePath);
         this.versions.push(newPatchVersionInfo);
     }
 };
 
-/**
- * Tools
- **/
-
-function Log(msg) {
-    var time = new Date();
-    console.log(time.toLocaleString() + " " + msg);
-}
-
 function LogProjectInfo() {
-    Log("##################################################################################");
-    Log('# Author : Marcus Ma');
-    Log('# E-mail : maji1991@sina.com');
-    Log("# GitHub : https://github.com/MarcusMa")
-    Log("##################################################################################");
-    Log("# Demo Server for React Native Hot Code Push");
-    Log("# See: https://github.com/MarcusMa/simple-react-native-hot-code-push-server");
-    Log("# For Client Demo, please");
-    Log("# See: https://github.com/MarcusMa/simple-react-native-hot-code-push");
-    Log("##################################################################################");
+    Log.i(TAG,"##################################################################################");
+    Log.i(TAG,'# Author : Marcus Ma');
+    Log.i(TAG,'# E-mail : maji1991@sina.com');
+    Log.i(TAG,"# GitHub : https://github.com/MarcusMa")
+    Log.i(TAG,"##################################################################################");
+    Log.i(TAG,"# Demo Server for React Native Hot Code Push");
+    Log.i(TAG,"# See: https://github.com/MarcusMa/simple-react-native-hot-code-push-server");
+    Log.i(TAG,"# For Client Demo, please");
+    Log.i(TAG,"# See: https://github.com/MarcusMa/simple-react-native-hot-code-push");
+    Log.i(TAG,"##################################################################################");
 }

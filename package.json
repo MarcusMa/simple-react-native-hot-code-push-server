@@ -1,5 +1,5 @@
- {
- "name": "myserver",
+{
+  "name": "myserver",
   "version": "1.0.0",
   "description": "using express and node.js",
   "main": "index.js",
@@ -11,11 +11,16 @@
     "url": "https://git.coding.net/marcusma/myExpressServer.git"
   },
   "author": "Marucs Ma",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
     "body-parser": "^1.15.2",
     "cookie-parser": "^1.4.3",
     "express": "^4.14.0",
     "express-session": "^1.14.1"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-preset-es2015": "^6.24.1",
+    "babel-preset-latest": "^6.24.1"
   }
- }
+}
