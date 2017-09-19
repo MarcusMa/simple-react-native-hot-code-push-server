@@ -1,10 +1,11 @@
 {
-  "name": "myserver",
+  "name": "Simple-React-Native-Hot-Code-Push-Server",
   "version": "1.0.0",
-  "description": "using express and node.js",
+  "description": "using express and node.js to build a server to provide management of patches of react-native js bundle.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "server":"node index",
+    "test": "node test"
   },
   "repository": {
     "type": "git",
