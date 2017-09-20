@@ -139,7 +139,7 @@ app.listen(ServicePort, () => {
     Log.i(TAG,'Server Listening at port :' + ServicePort);
     
     Log.i(TAG,".... Data Initilization ....");
-    var localBusiness = new BusinessInfo("AAF047B7-E816-2AE0-949A-D5FB4CE40245", "myBusiness", "business");
+    var localBusiness = new BusinessInfo("AAF047B7-E816-2AE0-949A-D5FB4CE40245", "myBusiness", "tag1");
     dataManager.add(localBusiness);
 
     Log.i(TAG,">>> clear ./dist folder");

@@ -12,6 +12,7 @@ const Log = require('./src/utils/Log');
 const BusinessInfo = require('./src/entity/BusinessInfo');
 const PatchVersionIno = require('./src/entity/PatchVersionInfo');
 const BusinessManager = require('./src/service/BusinessManager');
+const PatchManager = require('./src/service/PatchManager');
 
 const TAG = "test";
 Log.i(TAG,"### Test BusinessInfo ");
@@ -35,3 +36,10 @@ manager.add(info);
 info.businessId = "2";
 manager.add(info);
 Log.d(manager.getBusinessInfoSize());
+
+Log.i(TAG,"### Test PatchManager ");
+
+let patchManager = new PatchManager();
+patchManager.startBsdiff();
+patchManager.init(manager);
+patchManager.startBsdiff();

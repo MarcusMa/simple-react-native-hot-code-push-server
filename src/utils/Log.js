@@ -14,7 +14,7 @@ function Log(msg) {
 }
 
 Log.prototype.e = function (tag, msg) {
-    printLog("error", realTag, realMsg);
+    printLog("error", tag, msg);
 };
 Log.prototype.i = function (tag, msg) {
     
