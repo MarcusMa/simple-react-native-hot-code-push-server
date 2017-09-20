@@ -17,20 +17,24 @@ function PatchVersionInfo(id, patchVersion, patchHashCode, patchFilePath) {
     this.filePath = patchFilePath;
 }
 
-PatchVersionInfo.prototype.getDownloadUrl = function () {
+PatchVersionInfo.prototype.getDownloadUrl = _getDownloadUrl;
+PatchVersionInfo.prototype.toString = _toString;
+
+function _getDownloadUrl() {
     //FIXME
     var ret = null;
     if (this.filePath) {
         ret = this.filePath.substr(9);
     }
     return ret;
-};
-
-PatchVersionInfo.prototype.toString = function(){
-    return "businessId: " + this.businessId 
-        + " , version: "  + this.version
-        + " , hashcode: " + this.hashCode
-        + " , filePath: " + this.filePath;
 }
+
+function _toString() {
+    return "businessId: " + this.businessId +
+        " , version: " + this.version +
+        " , hashcode: " + this.hashCode +
+        " , filePath: " + this.filePath;
+}
+
 
 module.exports = PatchVersionInfo;

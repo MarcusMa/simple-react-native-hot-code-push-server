@@ -18,19 +18,25 @@ function BusinessManager() {
     this.businessMap = [];
 }
 
+BusinessManager.prototype.init = _init;
+BusinessManager.prototype.getBusinessInfoSize = _getBusinessInfoSize;
+BusinessManager.prototype.add = _add;
+BusinessManager.prototype.getBusinessInfoById = _getBusinessInfoById;
+BusinessManager.prototype.getBusinessInfoByTag = _getBusinessInfoByTag;
+
 /**
  * Init, not used now.
  */
-BusinessManager.prototype.init = function () {
+function _init() {
     //init
-}
-
-
-BusinessManager.prototype.getBusinessInfoSize = function(){
+};
+/**
+ * Get the size of the business map.
+ */
+function _getBusinessInfoSize() {
     if (this.businessMap instanceof Array) {
         // do nothing
-    }
-    else{
+    } else {
         Log.e(TAG, "businessMap cannot be null, just reset it");
         this.businessMap = [];
     }
@@ -39,13 +45,13 @@ BusinessManager.prototype.getBusinessInfoSize = function(){
 
 /**
  * Add a BusinessInfo the set.
+ * @param {BusinessInfo} business 
  */
-BusinessManager.prototype.add = function (business) {
+function _add(business) {
     if (business instanceof BusinessInfo) {
         if (this.businessMap instanceof Array) {
             // do nothing
-        }
-        else{
+        } else {
             Log.e(TAG, "businessMap cannot be null, just reset it");
             this.businessMap = [];
         }
@@ -62,55 +68,55 @@ BusinessManager.prototype.add = function (business) {
             Log.w(TAG, "Try to add an exist BusinessInfo with businessId=" + business.businessId);
         }
     }
-};
+}
 
 /**
  * Get the BusinessInfo using businessId prop.
+ * @param {String} queryId 
  */
-BusinessManager.prototype.getBusinessInfoById = function (queryId) {
+function _getBusinessInfoById(queryId) {
     var ret = null;
     if (this.businessMap instanceof Array) {
         // do nothing
-    }
-    else{
+    } else {
         Log.e(TAG, "businessMap cannot be null, just reset it");
         this.businessMap = [];
     }
 
     this.businessMap.forEach(function (tmp) {
-        Log.d(TAG,"get local id=" + tmp.businessId + ", and query id=" + queryId);
+        Log.d(TAG, "get local id=" + tmp.businessId + ", and query id=" + queryId);
         if (tmp.businessId === queryId) {
             ret = tmp;
         }
     });
-    if(null === ret){
+    if (null === ret) {
         Log.w(TAG, "Can not find the BusinessInfo with id=" + queryId);
     }
     return ret;
-};
+}
 
 /**
  * Get the BusinessInfo using businessTag prop.
+ * @param {String} queryTag 
  */
-BusinessManager.prototype.getBusinessInfoByTag = function (queryTag) {
+function _getBusinessInfoByTag(queryTag) {
     var ret = null;
     if (this.businessMap instanceof Array) {
         // do nothing
-    }
-    else{
+    } else {
         Log.e(TAG, "businessMap cannot be null, just reset it");
         this.businessMap = [];
     }
     this.businessMap.forEach(function (tmp) {
-        Log.d(TAG,"get local id=" + tmp.businessTag + ", and query id " + queryTag);
+        Log.d(TAG, "get local id=" + tmp.businessTag + ", and query id " + queryTag);
         if (tmp.businessTag === queryTag) {
             ret = tmp;
         }
     });
-    if(null === ret){
+    if (null === ret) {
         Log.w(TAG, "Can not find the BusinessInfo with tag=" + queryTag);
     }
     return ret;
-};
+}
 
 module.exports = BusinessManager;

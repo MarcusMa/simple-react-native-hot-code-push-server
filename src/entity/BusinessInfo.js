@@ -20,10 +20,16 @@ function BusinessInfo(id, name, tag) {
     this.patchVersions = [];
 }
 
+BusinessInfo.prototype.isPatchVersionExist = _isPatchVersionExist;
+BusinessInfo.prototype.getLatestPatchInfo = _getLatestPatchInfo;
+BusinessInfo.prototype.addNewPatchVersion = _addNewPatchVersion;
+BusinessInfo.prototype.toString = _toString;
+
 /**
  * Check the patch verions using patch package hashcode.
+ * @param {String} patchHashCode 
  */
-BusinessInfo.prototype.isPatchVersionExist = function (patchHashCode) {
+function _isPatchVersionExist(patchHashCode) {
     var ret = false;
     this.patchVersions.forEach(function (tmp) {
         if (tmp.hashCode === patchHashCode) {
@@ -31,12 +37,12 @@ BusinessInfo.prototype.isPatchVersionExist = function (patchHashCode) {
         }
     });
     return ret;
-};
+}
 
 /**
  * Get the latest PatchVersionInfo 
  */
-BusinessInfo.prototype.getLatestPatchInfo = function () {
+function _getLatestPatchInfo() {
     var ret = null;
     if (this.patchVersions.length > 0) {
         var lastIndex = 0;
@@ -48,12 +54,14 @@ BusinessInfo.prototype.getLatestPatchInfo = function () {
         ret = this.patchVersions[lastIndex];
     }
     return ret;
-};
+}
+
 
 /**
  * Add a new PatchVersionInfo to the set of patchs.
+ * @param {*} patchInfo 
  */
-BusinessInfo.prototype.addNewPatchVersion = function (patchInfo) {
+function _addNewPatchVersion(patchInfo) {
     if (patchInfo instanceof PatchVersionInfo) {
         // check the patch version
         var isExit = false;
@@ -67,17 +75,17 @@ BusinessInfo.prototype.addNewPatchVersion = function (patchInfo) {
             this.patchVersions.push(patchInfo);
         }
     }
-};
+}
 
-BusinessInfo.prototype.toString = function () {
-    var ret =  "businessId:" + this.businessId +
+function _toString() {
+    var ret = "businessId:" + this.businessId +
         ", businessName:" + this.businessName +
-        ", businessTag:" + this.businessTag + 
+        ", businessTag:" + this.businessTag +
         ", versions:[";
 
-    this.patchVersions.forEach(function(tmp){
-        if(tmp instanceof PatchVersionInfo){
-            ret += "{ " + tmp.toString() +"}, ";
+    this.patchVersions.forEach(function (tmp) {
+        if (tmp instanceof PatchVersionInfo) {
+            ret += "{ " + tmp.toString() + "}, ";
         }
     });
     ret += "]";

@@ -13,7 +13,6 @@
 
 const exec = require('child_process').exec;
 const crypto = require('crypto');
-const path = require('path');
 const fs = require('fs');
 const Log = require('../utils/Log');
 const BusinessInfo = require("../entity/BusinessInfo");
@@ -53,7 +52,7 @@ PatchManager.prototype.setDistPath = _setDistPath;
 PatchManager.prototype.setCommonBundleFilePath = _setCommonBundleFilePath;
 PatchManager.prototype.setBsDiffRootPath = _setBsDiffRootPath;
 PatchManager.prototype.setBsDiffCmd = _setBsDiffCmd;
-PatchManager.prototype.startBsdiff = _startBsdiff;
+PatchManager.prototype.startPatch = _startPatch;
 
 /**
  * Initialized method, need a BusinessManager Object.
@@ -70,7 +69,7 @@ function _init(manager) {
 
 /**
  * Set Dist Path for diffed files to store. 
- * @param {*} customDistPath 
+ * @param {String} customDistPath 
  */
 function _setDistPath(customDistPath) {
     distPath = customDistPath;
@@ -113,15 +112,15 @@ function _isInited() {
 /**
  * Start bsdiff the js bundle files. 
  */
-function _startBsdiff() {
+function _startPatch() {
     if (!_isInited()) {
         Log.e(TAG, "You should init the PatchManager Object firstly.");
         return;
     }
-    _onClearDistDir(function(){
+    _onClearDistDir(function () {
         mPatchEmitter.emit(EVENT_START_BSDIFF_FILES);
-    },function(){
-        Log.e(TAG,"Error happened in clearing progress for dist dir.");
+    }, function () {
+        Log.e(TAG, "Error happened in clearing progress for dist dir.");
     })
     // or
     // _onStartBsdiffFiles(
@@ -172,6 +171,7 @@ mPatchEmitter.on(EVENT_START_COMPUTE_HASHCODE, function () {
     Log.i(TAG, "Tiggle Event: Start computing hashcode of patches (using sha-256)");
     // Defined the success callback to update the info in BussinessManager object.
     var _successCallback = function (patchFileFullPath, hashcode) {
+        Log.i(TAG, `HashCode SUCCESS, file: ${patchFileFullPath}, hashcode: ${hashcode} `);
         /* Patch' filename formated:
              {businessTag}_v_{version}_{others}.patch
            Example:
@@ -184,7 +184,7 @@ mPatchEmitter.on(EVENT_START_COMPUTE_HASHCODE, function () {
         var version = infos[2];
         var businessInfo = businessManager.getBusinessInfoByTag(busTag);
         if (null !== businessInfo) {
-            Log.i(TAG, "Get BusinesInfo :" + businessInfo.toString());
+            Log.i(TAG, `Get BusinesInfo :${businessInfo.toString()}`);
             // setTimeout(function () {
 
             // }, 0);
@@ -200,7 +200,7 @@ mPatchEmitter.on(EVENT_START_COMPUTE_HASHCODE, function () {
     dirs.forEach(function (tmpDir) {
         var distBuinessDir = distPath + "/" + tmpDir;
         if (fs.statSync(distBuinessDir).isDirectory()) {
-            Log.i(TAG, "HashCode for Dir: " + distBuinessDir);
+            Log.i(TAG, `HashCode for Dir: ${distBuinessDir}`);
             var files = fs.readdirSync(distBuinessDir);
             files.forEach(function (patchName) {
                 if (patchName == '.DS_Store' || patchName.substr(patchName.length - 6, 6) != '.patch') {
@@ -218,19 +218,19 @@ mPatchEmitter.on(EVENT_START_COMPUTE_HASHCODE, function () {
     });
 });
 
-function _onClearDistDir(successCallback,errorCallback){
-    Log.i(TAG,"Clear ./dist folder");
+function _onClearDistDir(successCallback, errorCallback) {
+    Log.i(TAG, "Clear ./dist folder");
     var clearDistCmd = "rm -rf " + distPath;
     exec(clearDistCmd, (error, stdout, stderr) => {
         if (error) {
-            Log.i(TAG,`exec error: ${error}`);
+            Log.i(TAG, `exec error: ${error}`);
             if (typeof errorCallback === 'function') {
                 errorCallback();
             }
             return;
         }
         fs.mkdir(distPath);
-        if(typeof successCallback === 'function'){
+        if (typeof successCallback === 'function') {
             successCallback();
         }
     });
@@ -243,7 +243,7 @@ function _onClearDistDir(successCallback,errorCallback){
  * @param {*} _errorCallback , callback function when progress failed.
  */
 function _onComputeFileHashCode(_filePath, _successCallback, _errorCallback) {
-    Log.i(TAG, "HashCode for File: " + _filePath);
+    Log.i(TAG, `HashCode for File: ${_filePath}`);
     var rs = fs.createReadStream(_filePath);
     var hash = crypto.createHash('sha256');
     rs.on('data', hash.update.bind(hash));
@@ -265,11 +265,13 @@ function _onComputeFileHashCode(_filePath, _successCallback, _errorCallback) {
 function _onStartBsdiffFiles(_successCallback, _errorCallback) {
     var dirs = fs.readdirSync(originalSourcePath);
     dirs.forEach(function (tmpDir) {
-        var distBuinessDir = distPath + "/" + tmpDir;
-        var originalBuinessDir = originalSourcePath + "/" + tmpDir;
+        // var distBuinessDir = distPath + "/" + tmpDir;
+        // var originalBuinessDir = originalSourcePath + "/" + tmpDir;
+        var distBuinessDir = `${distPath}/${tmpDir}`;
+        var originalBuinessDir = `${originalSourcePath}/${tmpDir}`;
 
         if (fs.statSync(originalBuinessDir).isDirectory()) {
-            Log.i(TAG, "Bsdiff progress in dir: " + originalBuinessDir);
+            Log.i(TAG, `Bsdiff progress in dir: ${originalBuinessDir}`);
             fs.mkdirSync(distBuinessDir); // make /dist/xxxx dir
             var files = fs.readdirSync(originalBuinessDir);
 
@@ -281,11 +283,12 @@ function _onStartBsdiffFiles(_successCallback, _errorCallback) {
                 }
 
                 (function () {
-                    var option = commonBundleFilePath + " " +
-                        originalBuinessDir + "/" + jsBundleFileName + " " +
-                        distBuinessDir + "/" + jsBundleFileName + ".patch";
-                    var execCmd = bsdiffCmd + " " + option;
-                    Log.i(TAG, "Bsdiff cmd is :" + execCmd);
+                    // var option = commonBundleFilePath + " " +
+                    //     originalBuinessDir + "/" + jsBundleFileName + " " +
+                    //     distBuinessDir + "/" + jsBundleFileName + ".patch";
+                    // var execCmd = bsdiffCmd + " " + option;
+                    var execCmd = `${bsdiffCmd} ${commonBundleFilePath} ${originalBuinessDir}/${jsBundleFileName} ${distBuinessDir}/${jsBundleFileName}.patch`;
+                    Log.i(TAG, `Bsdiff cmd is : ${execCmd}`);
                     patchFileSize++;
                     exec(execCmd, (error, stdout, stderr) => {
                         if (error) {
@@ -295,7 +298,7 @@ function _onStartBsdiffFiles(_successCallback, _errorCallback) {
                             }
                             return;
                         }
-                        Log.i(TAG, ">>>> bsdiff success");
+                        Log.i(TAG, "Bsdiff SUCCESS");
                         if (typeof _successCallback === "function") {
                             _successCallback();
                         }

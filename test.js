@@ -15,21 +15,21 @@ const BusinessManager = require('./src/service/BusinessManager');
 const PatchManager = require('./src/service/PatchManager');
 
 const TAG = "test";
-Log.i(TAG,"### Test BusinessInfo ");
-let info = new BusinessInfo("1",2,3);
-let patchVersion = new PatchVersionIno(1,'1.1.1',"234","/sdaf/sdfasdf");
-let patchVersion2 = new PatchVersionIno(2,'1.1.2',"aasdf","asdfa/asdfas/asdfasd");
+Log.i(TAG, "### Test BusinessInfo ");
+let info = new BusinessInfo("1", 2, 3);
+let patchVersion = new PatchVersionIno(1, '1.1.1', "234", "/sdaf/sdfasdf");
+let patchVersion2 = new PatchVersionIno(2, '1.1.2', "aasdf", "asdfa/asdfas/asdfasd");
 
 info.addNewPatchVersion(patchVersion);
 info.addNewPatchVersion(patchVersion2);
 
-Log.d(TAG,info.toString());
+Log.d(TAG, info.toString());
 
-Log.i(TAG,"### Test BusinessManager ");
+Log.i(TAG, "### Test BusinessManager ");
 let manager = new BusinessManager();
 manager.add(info);
 let findInfo = manager.getBusinessInfoById("1");
-Log.d(TAG,findInfo.toString());
+Log.d(TAG, findInfo.toString());
 let findTagInfo = manager.getBusinessInfoByTag(3);
 Log.d(findTagInfo.toString());
 manager.add(info);
@@ -37,9 +37,9 @@ info.businessId = "2";
 manager.add(info);
 Log.d(manager.getBusinessInfoSize());
 
-Log.i(TAG,"### Test PatchManager ");
+Log.i(TAG, "### Test PatchManager ");
 
 let patchManager = new PatchManager();
-patchManager.startBsdiff();
+patchManager.startPatch();
 patchManager.init(manager);
-patchManager.startBsdiff();
+patchManager.startPatch();
