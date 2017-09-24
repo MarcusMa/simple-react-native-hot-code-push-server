@@ -12,7 +12,6 @@
  */
 const express = require('express');
 const bodyParser = require('body-parser');
-
 /**
  * Custom module dependencies.
  */
@@ -65,6 +64,7 @@ app.get('/test', function (req, res) {
  */
 app.post('/checkForUpdate', function (req, res) {
     Log.i(TAG, "Call /checkForUpdate");
+    // Log.i(TAG,JSON.stringify(req.params));
     Log.i(TAG, "Request body:");
     Log.i(TAG, JSON.stringify(req.body));
     var reqBody = req.body;
@@ -116,7 +116,7 @@ app.post('/checkForUpdate', function (req, res) {
         }
         if (!isExist) {
             let respData = {
-                id: tmp.id,
+                id: tmp.businessId,
                 verifyHashCode: ""
             };
             let latestPatchInfo = tmp.getLatestPatchInfo();
@@ -130,6 +130,7 @@ app.post('/checkForUpdate', function (req, res) {
     var respJson = responseJson;
     respJson.data = remoteBuinessList;
     respJson.msg = " Success ";
+    Log.i(TAG,"Response: " + JSON.stringify(respJson));
     res.send(respJson);
 });
 
