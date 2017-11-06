@@ -10,7 +10,7 @@ This project builded for providing ths management service of react native. Node.
 
 > NOTICE: As for using bsdiff algrithm in the this project, the cmd of bsdiff only  be supported with MAC and Linux system, **NOT** with Window system.
 
-## 业务与功能 (Fucntions)
+## 业务与功能 (Functions)
 
 服务器将完整的jsbundle包拆分为一个**公共包**和一个**业务包**,拆分使用的是bsDiff算法，(可以自行替换成为google-diff-match-patch,两个算法的比较见[compare-file-diff-tools](https://github.com/MarcusMa/compare-file-diff-tools)，客户端检查更新时，服务器端会根据客户端包的信息发送对应的升级包下载地址和哈希值。
 
